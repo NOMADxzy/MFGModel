@@ -1,0 +1,24 @@
+// 指定proto版本
+syntax = "proto3";
+
+package service;
+
+message State{
+  float delay = 1;
+  float delivery_rate = 2;
+  float send_rate = 3;
+  float cwnd = 4;
+}
+
+message Action{
+  float action = 1;
+}
+
+// 空的响应消息，用于不需要返回信息的方法
+message Empty {
+}
+
+service acerService{
+  rpc GetExplorationAction(State) returns(Action);
+  rpc UpdateMetric(State) returns(Empty);
+}

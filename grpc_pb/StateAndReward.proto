@@ -1,0 +1,27 @@
+// 指定proto版本
+syntax = "proto3";
+option go_package = "./;rpcClient";
+
+package service;
+
+message StateReward{
+  repeated float state = 1;
+  float reward = 2;
+}
+
+message Action{
+  float action = 1;
+}
+
+message Metric{
+  repeated float metrics = 1;
+}
+
+message Res{
+  float r = 1;
+}
+
+service acerService{
+  rpc GetExplorationAction(StateReward) returns(Action);
+  rpc UpdateMetric(Metric) returns(Res);
+}
