@@ -6,6 +6,7 @@ import project_root
 from Learner import Learner
 import indigo_pb2
 import indigo_pb2_grpc
+import argparse
 
 # trainer.load_models(2800,s=1,v=15)
 
@@ -47,6 +48,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
         input_state = self.overly(cur_state)
         action = self.sample_action(input_state)
+        print "action: " + str(action)
         return indigo_pb2.Action(action=action)
 
     def UpdateMetric(self, state, context):
@@ -57,10 +59,22 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
         return indigo_pb2.Empty()
 
-if __name__ == '__main__':
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-ip', type=str, default='0.0.0.0', help='rpc listening ip')
+    parser.add_argument('-port', type=str, default='50053', help='rpc listening port')
+
+    args = parser.parse_args()
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     indigo_pb2_grpc.add_acerServiceServicer_to_server(RLmethods(), server)
-    server.add_insecure_port('[::]:50053')
+    server.add_insecure_port(args.ip + ':' + str(args.port))
     server.start()
-    print("rpc serve in port 50053")
+    print("rpc serve on %s:%s" % (args.ip, args.port))
     server.wait_for_termination()
+
+
+if __name__ == '__main__':
+    main()
