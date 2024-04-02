@@ -37,7 +37,7 @@ math_ops = {
 
 
 def apply_op(op, op1, op2):
-    return math_ops[op](op1, op2)
+    return max(math_ops[op](op1, op2), 2.0)
 
 
 def curr_ts_ms():

@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x0cindigo.proto\x12\x07service\"N\n\x05State\x12\r\n\x05\x64\x65lay\x18\x01 \x01(\x02\x12\x15\n\rdelivery_rate\x18\x02 \x01(\x02\x12\x11\n\tsend_rate\x18\x03 \x01(\x02\x12\x0c\n\x04\x63wnd\x18\x04 \x01(\x02\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\x02\"\x07\n\x05\x45mpty2v\n\x0b\x61\x63\x65rService\x12\x37\n\x14GetExplorationAction\x12\x0e.service.State\x1a\x0f.service.Action\x12.\n\x0cUpdateMetric\x12\x0e.service.State\x1a\x0e.service.Emptyb\x06proto3'
+  serialized_pb=b'\n\x0cindigo.proto\x12\x07service\"\\\n\x05State\x12\r\n\x05\x64\x65lay\x18\x01 \x01(\x02\x12\x15\n\rdelivery_rate\x18\x02 \x01(\x02\x12\x11\n\tsend_rate\x18\x03 \x01(\x02\x12\x0c\n\x04\x63wnd\x18\x04 \x01(\x02\x12\x0c\n\x04port\x18\x05 \x01(\x05\"\x18\n\x06\x41\x63tion\x12\x0e\n\x06\x61\x63tion\x18\x01 \x01(\x02\"\x07\n\x05\x45mpty2v\n\x0b\x61\x63\x65rService\x12\x37\n\x14GetExplorationAction\x12\x0e.service.State\x1a\x0f.service.Action\x12.\n\x0cUpdateMetric\x12\x0e.service.State\x1a\x0e.service.Emptyb\x06proto3'
 )
 
 
@@ -61,6 +61,13 @@ _STATE = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='port', full_name='service.State.port', index=4,
+      number=5, type=5, cpp_type=1, label=1,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -74,7 +81,7 @@ _STATE = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=25,
-  serialized_end=103,
+  serialized_end=117,
 )
 
 
@@ -105,8 +112,8 @@ _ACTION = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=105,
-  serialized_end=129,
+  serialized_start=119,
+  serialized_end=143,
 )
 
 
@@ -130,8 +137,8 @@ _EMPTY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=131,
-  serialized_end=138,
+  serialized_start=145,
+  serialized_end=152,
 )
 
 DESCRIPTOR.message_types_by_name['State'] = _STATE
@@ -169,8 +176,8 @@ _ACERSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=140,
-  serialized_end=258,
+  serialized_start=154,
+  serialized_end=272,
   methods=[
   _descriptor.MethodDescriptor(
     name='GetExplorationAction',

@@ -8,6 +8,7 @@ message State{
   float delivery_rate = 2;
   float send_rate = 3;
   float cwnd = 4;
+  int32 port = 5;
 }
 
 message Action{
