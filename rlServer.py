@@ -106,6 +106,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
     def UpdateMetric(self, state, context):
 
         self.update_states(state)
+        print "update state: " + state
         cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
         input_state = self.overly(cur_state, self.GetAvgState())
         return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
