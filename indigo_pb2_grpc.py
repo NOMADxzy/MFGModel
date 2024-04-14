@@ -22,7 +22,7 @@ class acerServiceStub(object):
         self.UpdateMetric = channel.unary_unary(
                 '/service.acerService/UpdateMetric',
                 request_serializer=indigo__pb2.State.SerializeToString,
-                response_deserializer=indigo__pb2.Empty.FromString,
+                response_deserializer=indigo__pb2.State.FromString,
                 )
 
 
@@ -52,7 +52,7 @@ def add_acerServiceServicer_to_server(servicer, server):
             'UpdateMetric': grpc.unary_unary_rpc_method_handler(
                     servicer.UpdateMetric,
                     request_deserializer=indigo__pb2.State.FromString,
-                    response_serializer=indigo__pb2.Empty.SerializeToString,
+                    response_serializer=indigo__pb2.State.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -94,6 +94,6 @@ class acerService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/service.acerService/UpdateMetric',
             indigo__pb2.State.SerializeToString,
-            indigo__pb2.Empty.FromString,
+            indigo__pb2.State.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -84,6 +84,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         print "target_cwnd: " + str(target_cwnd)
         return indigo_pb2.Action(action=target_cwnd)
 
+
     def update_states(self, state):
         port = state.port
         if port not in self.client_states:
@@ -105,7 +106,10 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
     def UpdateMetric(self, state, context):
 
         self.update_states(state)
-        return indigo_pb2.Empty()
+        cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
+        input_state = self.overly(cur_state, self.GetAvgState())
+        return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
+                                cwnd=input_state[3], port=state.port)
 
 
 def main():
