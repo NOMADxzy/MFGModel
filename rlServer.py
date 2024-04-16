@@ -116,6 +116,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
             cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
             input_state = self.overly(cur_state, self.GetAvgState())
             print input_state
+            print cur_state
             return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
                                     cwnd=input_state[3], port=state.port)
 
