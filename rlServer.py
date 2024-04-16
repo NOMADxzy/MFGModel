@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import division
 
 import subprocess
@@ -10,7 +12,10 @@ import indigo_pb2
 import indigo_pb2_grpc
 import argparse
 from helpers.helpers import apply_op
-from subprocess import check_call
+import threading
+
+# 创建一个锁对象
+lock = threading.Lock()
 
 # trainer.load_models(2800,s=1,v=15)
 def format_actions(action_list):
@@ -40,7 +45,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         self.action_mapping = format_actions(["/2.0", "-10.0", "+0.0", "+10.0", "*2.0"])
         self.action_cnt = len(self.action_mapping)
 
-        self.phi = 0.1
+        self.phi = 0.1 # 自己状态所占的比例
 
     def load_model(self):
         model_path = path.join(project_root.DIR, 'a3c', 'logs', 'model')
@@ -67,22 +72,23 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
                 self.cwnd / self.client_num]
 
     def GetExplorationAction(self, state, context):
-        self.update_states(state)
-        port = state.port
+        with lock:
+            self.update_states(state)
+            port = state.port
 
-        cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
-        input_state = self.overly(cur_state, self.GetAvgState())
+            cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
+            input_state = self.overly(cur_state, self.GetAvgState())
 
-        action = self.sample_action(input_state)
-        op, val = self.action_mapping[action]
+            action = self.sample_action(input_state)
+            op, val = self.action_mapping[action]
 
-        target_cwnd = apply_op(op, input_state[3], val)
+            target_cwnd = apply_op(op, input_state[3], val)
 
-        self.cwnd += target_cwnd - self.client_states[port][3]
-        self.client_states[port][3] = target_cwnd
+            self.cwnd += target_cwnd - self.client_states[port][3]
+            self.client_states[port][3] = target_cwnd
 
-        print "target_cwnd: " + str(target_cwnd)
-        return indigo_pb2.Action(action=target_cwnd)
+            print "target_cwnd: " + str(target_cwnd)
+            return indigo_pb2.Action(action=target_cwnd)
 
 
     def update_states(self, state):
@@ -105,12 +111,13 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
     def UpdateMetric(self, state, context):
 
-        self.update_states(state)
-        print state
-        cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
-        input_state = self.overly(cur_state, self.GetAvgState())
-        return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
-                                cwnd=input_state[3], port=state.port)
+        with lock:
+            self.update_states(state)
+            cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
+            input_state = self.overly(cur_state, self.GetAvgState())
+            print input_state
+            return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
+                                    cwnd=input_state[3], port=state.port)
 
 
 def main():
