@@ -13,9 +13,17 @@ import indigo_pb2_grpc
 import argparse
 from helpers.helpers import apply_op
 import threading
+from filelock import Timeout, FileLock
+import logging
+
+# 全局配置，默认的日志级别设置为 WARNING，
+# 这样 INFO 和 DEBUG 级别的日志则不会显示
+logging.basicConfig(level=logging.INFO)
 
 # 创建一个锁对象
-lock = threading.Lock()
+lock = FileLock("state.lock")
+
+# lock = threading.Lock()
 
 # trainer.load_models(2800,s=1,v=15)
 def format_actions(action_list):
@@ -34,13 +42,14 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         self.learner = None
         self.load_model()
 
-        self.delay = 0.0
-        self.delivery_rate = 0.0
-        self.send_rate = 0.0
+        # self.delay = 0.0
+        # self.delivery_rate = 0.0
+        # self.send_rate = 0.0
         self.cwnd = 0.0
 
-        self.client_num = 0
-        self.client_states = {}
+        # self.client_num = 0
+        # self.client_states = {}
+        self.pre_state = [0,0,0,0]
 
         self.action_mapping = format_actions(["/2.0", "-10.0", "+0.0", "+10.0", "*2.0"])
         self.action_cnt = len(self.action_mapping)
@@ -65,60 +74,86 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         new_state[3] = cur_state[3] * self.phi + avg_state[3] * (1.0 - self.phi)
         return new_state
 
-    def GetAvgState(self):
-        return [self.delay / self.client_num,
-                self.delivery_rate / self.client_num,
-                self.send_rate / self.client_num,
-                self.cwnd / self.client_num]
+    # def GetAvgState(self):
+    #     return [self.delay / self.client_num,
+    #             self.delivery_rate / self.client_num,
+    #             self.send_rate / self.client_num,
+    #             self.cwnd / self.client_num]
 
     def GetExplorationAction(self, state, context):
         with lock:
-            self.update_states(state)
+            cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
+            avg_state = self.SyncFile(self.pre_state, cur_state, False)
             port = state.port
 
-            cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
-            input_state = self.overly(cur_state, self.GetAvgState())
+
+            input_state = self.overly(cur_state, avg_state)
 
             action = self.sample_action(input_state)
             op, val = self.action_mapping[action]
 
             target_cwnd = apply_op(op, input_state[3], val)
 
-            self.cwnd += target_cwnd - self.client_states[port][3]
-            self.client_states[port][3] = target_cwnd
-
+            # self.cwnd += target_cwnd - self.client_states[port][3]
+            # self.client_states[port][3] = target_cwnd
+            self.pre_state = cur_state
             print "target_cwnd: " + str(target_cwnd)
             return indigo_pb2.Action(action=target_cwnd)
 
 
-    def update_states(self, state):
-        port = state.port
-        if port not in self.client_states:
-            self.client_num += 1
-
-        else:
-            pre_state = self.client_states[port]
-            self.delay -= pre_state[0]
-            self.delivery_rate -= pre_state[1]
-            self.send_rate -= pre_state[2]
-            self.cwnd -= pre_state[3]
-
-        self.client_states[port] = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
-        self.delay += state.delay
-        self.delivery_rate += state.delivery_rate
-        self.send_rate += state.send_rate
-        self.cwnd += state.cwnd
+    # def update_states(self, state):
+    #     port = state.port
+    #     if port not in self.client_states:
+    #         self.client_num += 1
+    #
+    #     else:
+    #         pre_state = self.client_states[port]
+    #         self.delay -= pre_state[0]
+    #         self.delivery_rate -= pre_state[1]
+    #         self.send_rate -= pre_state[2]
+    #         self.cwnd -= pre_state[3]
+    #
+    #     self.client_states[port] = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
+    #     self.delay += state.delay
+    #     self.delivery_rate += state.delivery_rate
+    #     self.send_rate += state.send_rate
+    #     self.cwnd += state.cwnd
 
     def UpdateMetric(self, state, context):
 
         with lock:
-            self.update_states(state)
             cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
-            input_state = self.overly(cur_state, self.GetAvgState())
+            avg_state = self.SyncFile(self.pre_state, cur_state, False)
+            input_state = self.overly(cur_state, avg_state)
+            self.pre_state = cur_state
             print input_state
             print cur_state
             return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
                                     cwnd=input_state[3], port=state.port)
+
+    def SyncFile(self, pre_state, state, read=False):
+        with open('states.txt', 'r') as file:
+            # 从文件中读取内容，并按空格分割字符串，然后将其转换为浮点数列表
+            avg_states = [float(num) for num in file.readline().split()]
+            sender_num = int(file.readline())
+        if read:
+            return avg_states
+        else:
+            new_avg_state = [0 for _ in range(4)]
+            new_avg_state[0] = avg_states[0]*sender_num + state[0] - pre_state[0]
+            new_avg_state[1] = avg_states[1]*sender_num + state[1] - pre_state[1]
+            new_avg_state[2] = avg_states[2]*sender_num + state[2] - pre_state[2]
+            new_avg_state[3] = avg_states[3]*sender_num + state[3] - pre_state[3]
+            if pre_state[0] == 0:
+                sender_num += 1
+            for i in range(len(new_avg_state)):
+                new_avg_state[i] /= sender_num
+            with open('states.txt', 'w') as file:
+                for num in new_avg_state:
+                    # 写入每个浮点数，转换为字符串并用空格分隔
+                    file.write("{} ".format(num))
+                file.write("\n{}".format(sender_num))
+            return new_avg_state
 
 
 def main():
