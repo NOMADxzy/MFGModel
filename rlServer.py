@@ -80,7 +80,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         model_path = path.join(project_root.DIR, 'a3c', 'logs', 'model')
 
         self.learner = Learner(
-            state_dim=4,
+            state_dim=6,
             action_cnt=5,
             restore_vars=model_path)
 
@@ -138,23 +138,6 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
             print "target_cwnd: " + str(target_cwnd)
             return indigo_pb2.Action(action=target_cwnd)
 
-    # def update_states(self, state):
-    #     port = state.port
-    #     if port not in self.client_states:
-    #         self.client_num += 1
-    #
-    #     else:
-    #         pre_state = self.client_states[port]
-    #         self.delay -= pre_state[0]
-    #         self.delivery_rate -= pre_state[1]
-    #         self.send_rate -= pre_state[2]
-    #         self.cwnd -= pre_state[3]
-    #
-    #     self.client_states[port] = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
-    #     self.delay += state.delay
-    #     self.delivery_rate += state.delivery_rate
-    #     self.send_rate += state.send_rate
-    #     self.cwnd += state.cwnd
 
     def cpt_distribution(self, nums):
         data = []
@@ -179,7 +162,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
             avg_cwnd, variance = self.cpt_distribution(nums)
             return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
-                                    cwnd=input_state[3], port=state.port, mean=avg_cwnd, variance=variance)
+                                    cwnd=input_state[3], port=state.port, avg_cwnd=avg_cwnd, variance=variance)
 
     def SyncFile(self, pre_state, state, read=False):
         self.check_file(states_file)
