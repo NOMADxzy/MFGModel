@@ -33,29 +33,6 @@ class ActorCriticLSTM(object):
             lstm_cell_list.append(rnn.BasicLSTMCell(lstm_state_dim))
         stacked_cell = rnn.MultiRNNCell(lstm_cell_list)
 
-       # self.lstm_state_init = []
-        #self.lstm_state_in = []
-        #lstm_state_in = []
-        #for i in xrange(lstm_layers):
-            #c_init = np.zeros([1, lstm_state_dim], np.float32)
-            #h_init = np.zeros([1, lstm_state_dim], np.float32)
-            #self.lstm_state_init.append((c_init, h_init))
-
-            #c_in = tf.placeholder(tf.float32, [1, lstm_state_dim])
-            #h_in = tf.placeholder(tf.float32, [1, lstm_state_dim])
-            #self.lstm_state_in.append((c_in, h_in))
-            #lstm_state_in.append(rnn.LSTMStateTuple(c_in, h_in))
-
-        #self.lstm_state_init = tuple(self.lstm_state_init)
-
-        # state input placeholder: ((c1, h1), (c2, h2))
-        #self.lstm_state_in = tuple(self.lstm_state_in)
-
-        # (LSTMStateTuple(c1, h1), LSTMStateTuple(c2, h2))
-        #lstm_state_in = tuple(lstm_state_in)
-
-        # lstm_state_out: (LSTMStateTuple(c1, h1), LSTMStateTuple(c2, h2))
-        # rnn_out: shape=(1, ?, lstm_state_dim), includes all h2 from the batch
         rnn_out, lstm_state_out = tf.nn.dynamic_rnn(
             stacked_cell, rnn_in, dtype=tf.float32)  #, initial_state=lstm_state_in)
 
