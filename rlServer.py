@@ -34,6 +34,10 @@ distributions_file = "distributions.txt"
 distributions = [2, 10, 50, 100]
 distributions_mids = [1, 6, 30, 75, 200]
 
+if os.path.exists(states_file):
+    os.remove(states_file)
+if os.path.exists(distributions_file):
+    os.remove(distributions_file)
 
 def which_interval(cwnd):
     ans = 0
