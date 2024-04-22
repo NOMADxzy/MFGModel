@@ -80,7 +80,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         model_path = path.join(project_root.DIR, 'a3c', 'logs', 'model')
 
         self.learner = Learner(
-            state_dim=6,
+            state_dim=4,
             action_cnt=5,
             restore_vars=model_path)
 
