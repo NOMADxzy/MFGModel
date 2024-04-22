@@ -229,7 +229,7 @@ def main():
 
     args = parser.parse_args()
 
-    server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
+    server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
     indigo_pb2_grpc.add_acerServiceServicer_to_server(RLmethods(), server)
     server.add_insecure_port(args.ip + ':' + str(args.port))
     server.start()
