@@ -45,6 +45,7 @@ def which_interval(cwnd):
         if distributions[i] > cwnd:
             break
         ans += 1
+    ans = min(ans, len(distributions_mids)-1)
     return ans
 
 
