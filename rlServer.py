@@ -113,6 +113,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         if port not in self.pre_state:
             if self.sender_num == 5:
                 init()
+                self.sender_num = 0
             self.pre_state[port] = [0, 0, 0, 0]
             self.sender_num += 1
 
