@@ -79,7 +79,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         self.sender_num = 0
         self.state_dim = 4
 
-        self.init()
+        # self.init()
 
     def init(self):
         self.pre_state = {}
