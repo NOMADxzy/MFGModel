@@ -34,11 +34,6 @@ distributions_file = "distributions.txt"
 distributions = [2, 10, 50, 100]
 distributions_mids = [1, 6, 30, 75, 200]
 
-def init():
-    if os.path.exists(states_file):
-        os.remove(states_file)
-    if os.path.exists(distributions_file):
-        os.remove(distributions_file)
 
 def which_interval(cwnd):
     ans = 0
@@ -71,7 +66,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         # self.delay = 0.0
         # self.delivery_rate = 0.0
         # self.send_rate = 0.0
-        self.cwnd = 0.0
+        # self.cwnd = 0.0
 
         # self.client_num = 0
         # self.client_states = {}
@@ -83,7 +78,15 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         self.phi = 1  # 自己状态所占的比例
         self.sender_num = 0
 
-        init()
+        self.init()
+
+    def init(self):
+        self.pre_state = {}
+        self.sender_num = 0
+        if os.path.exists(states_file):
+            os.remove(states_file)
+        if os.path.exists(distributions_file):
+            os.remove(distributions_file)
 
     def load_model(self):
         model_path = path.join(project_root.DIR, 'a3c', 'logs', 'model')
@@ -112,8 +115,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
     def check_port(self, port):
         if port not in self.pre_state:
             if self.sender_num == 5:
-                init()
-                self.sender_num = 0
+                self.init()
             self.pre_state[port] = [0, 0, 0, 0]
             self.sender_num += 1
 
