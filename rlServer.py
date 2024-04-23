@@ -75,7 +75,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         self.action_mapping = format_actions(["/2.0", "-10.0", "+0.0", "+10.0", "*2.0"])
         self.action_cnt = len(self.action_mapping)
 
-        self.phi = 1  # 自己状态所占的比例
+        self.phi = 0.2  # 自己状态所占的比例
         self.sender_num = 0
 
         self.init()
