@@ -127,8 +127,9 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
             avg_cwnd, variance = self.cpt_distribution(nums)
 
             input_state = self.overly(cur_state, avg_state)
-            input_state.append(avg_cwnd)
-            input_state.append(variance)
+            for e in nums:
+                input_state.append(e)
+            # input_state.append(variance)
 
             # 计算推理过程时间
             start_resources = resource.getrusage(resource.RUSAGE_SELF)
@@ -177,7 +178,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
             avg_cwnd, variance = self.cpt_distribution(nums)
             return indigo_pb2.State(delay=input_state[0], delivery_rate=input_state[1], send_rate=input_state[2],
-                                    cwnd=input_state[3], port=state.port, avg_cwnd=avg_cwnd, variance=variance)
+                                    cwnd=input_state[3], port=state.port, avg_cwnd=avg_cwnd, variance=variance, nums=nums)
 
     def SyncFile(self, pre_state, state, read=False):
         self.check_file(states_file)

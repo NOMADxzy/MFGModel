@@ -11,6 +11,7 @@ message State{
   int32 port = 5;
   float avg_cwnd = 6;
   float variance = 7;
+  repeated int32 nums = 8;
 }
 
 message Action{
