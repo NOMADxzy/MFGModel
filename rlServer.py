@@ -77,6 +77,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
         self.phi = 0.2  # 自己状态所占的比例
         self.sender_num = 0
+        self.state_dim = 4
 
         self.init()
 
@@ -90,9 +91,10 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
     def load_model(self):
         model_path = path.join(project_root.DIR, 'a3c', 'logs', 'model')
+        # model_path = path.join(project_root.DIR, 'a3c', 'logs', 'checkpoint-160')
 
         self.learner = Learner(
-            state_dim=4,
+            state_dim=self.state_dim,
             action_cnt=5,
             restore_vars=model_path)
 
@@ -133,7 +135,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
             # 计算推理过程时间
             start_resources = resource.getrusage(resource.RUSAGE_SELF)
-            action = self.sample_action(input_state)  # 推理
+            action = self.sample_action(input_state[:self.state_dim])  # 推理
             end_resources = resource.getrusage(resource.RUSAGE_SELF)
             cpu_time_consumed = (
                     end_resources.ru_utime - start_resources.ru_utime +
