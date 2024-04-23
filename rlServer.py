@@ -117,8 +117,8 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
             self.sender_num += 1
 
     def GetExplorationAction(self, state, context):
-        self.check_port(state.port)
         with lock:
+            self.check_port(state.port)
             cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
             avg_state, nums = self.SyncFile(self.pre_state[state.port], cur_state, False)
             avg_cwnd, variance = self.cpt_distribution(nums)
@@ -162,8 +162,8 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         return avg_cwnd, variance
 
     def UpdateMetric(self, state, context):
-        self.check_port(state.port)
         with lock:
+            self.check_port(state.port)
             cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
             avg_state, nums = self.SyncFile(self.pre_state[state.port], cur_state, False)
             input_state = self.overly(cur_state, avg_state)
