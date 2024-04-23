@@ -31,8 +31,8 @@ lock = FileLock("state.lock")
 states_file = "states.txt"
 distributions_file = "distributions.txt"
 
-distributions = [2, 10, 50, 100]
-distributions_mids = [1, 6, 30, 75, 200]
+distributions = [5, 10, 20, 50]
+distributions_mids = [2, 7, 15, 35, 100]
 
 
 def which_interval(cwnd):
