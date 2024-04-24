@@ -72,7 +72,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
                 self.cwnd / self.client_num]
 
     def GetExplorationAction(self, state, context):
-        with lock:
+        # with lock:
             self.update_states(state)
             port = state.port
 
@@ -112,7 +112,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
 
     def UpdateMetric(self, state, context):
 
-        with lock:
+        # with lock:
             self.update_states(state)
             cur_state = [state.delay, state.delivery_rate, state.send_rate, state.cwnd]
             input_state = self.overly(cur_state, self.GetAvgState())
