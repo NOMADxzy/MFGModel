@@ -9,6 +9,9 @@ message State{
   float send_rate = 3;
   float cwnd = 4;
   int32 port = 5;
+  float avg_cwnd = 6;
+  float variance = 7;
+  repeated int32 nums = 8;
 }
 
 message Action{
