@@ -108,6 +108,7 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         self.delivery_rate += state.delivery_rate
         self.send_rate += state.send_rate
         self.cwnd += state.cwnd
+        print [self.delay, self.delivery_rate, self.send_rate, self.cwnd]
 
     def UpdateMetric(self, state, context):
 
