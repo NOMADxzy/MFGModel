@@ -17,6 +17,7 @@ import threading
 from filelock import Timeout, FileLock
 import logging, resource
 import numpy as np
+import tracemalloc
 
 # 全局配置，默认的日志级别设置为 WARNING，
 # 这样 INFO 和 DEBUG 级别的日志则不会显示
@@ -244,9 +245,10 @@ def main():
     args = parser.parse_args()
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
-    print "Before Memory usage in KB:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    tracemalloc.start()
     indigo_pb2_grpc.add_acerServiceServicer_to_server(RLmethods(), server)
-    print "After Memory usage in KB:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    current, peak = tracemalloc.get_traced_memory()
+    print "Current memory usage is {}MB; Peak was {}MB".format(current / 10 ** 6, peak / 10 ** 6)
     server.add_insecure_port(args.ip + ':' + str(args.port))
     server.start()
     print("rpc serve on %s:%s" % (args.ip, args.port))
