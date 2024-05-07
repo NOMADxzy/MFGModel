@@ -243,7 +243,9 @@ def main():
     args = parser.parse_args()
 
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
+    print "Before Memory usage in KB:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     indigo_pb2_grpc.add_acerServiceServicer_to_server(RLmethods(), server)
+    print "After Memory usage in KB:", resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     server.add_insecure_port(args.ip + ':' + str(args.port))
     server.start()
     print("rpc serve on %s:%s" % (args.ip, args.port))
