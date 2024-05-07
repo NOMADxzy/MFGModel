@@ -61,7 +61,6 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
     def __init__(self):
         self.sample_action = None
         self.learner = None
-        self.load_model()
 
         # self.delay = 0.0
         # self.delivery_rate = 0.0
@@ -78,6 +77,8 @@ class RLmethods(indigo_pb2_grpc.acerServiceServicer):
         self.phi = 0.2  # 自己状态所占的比例
         self.sender_num = 0
         self.state_dim = 4
+
+        self.load_model()
 
         # self.init()
 
